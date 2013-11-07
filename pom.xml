@@ -48,6 +48,11 @@
         <version>7</version>
     </parent>
 
+    <scm>
+        <url>http://github.com/seeburger-ag/xnio</url>
+        <connection>scm:git:git@github.com:seeburger-ag/xnio.git</connection>
+    </scm>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
