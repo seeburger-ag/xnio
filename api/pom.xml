@@ -27,7 +27,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jboss.xnio</groupId>
+    <groupId>com.seeburger.xnio</groupId>
     <artifactId>xnio-api</artifactId>
     <packaging>jar</packaging>
     <name>XNIO API</name>
@@ -40,9 +40,9 @@
     </properties>
 
     <parent>
-        <groupId>org.jboss.xnio</groupId>
+        <groupId>com.seeburger.xnio</groupId>
         <artifactId>xnio-all</artifactId>
-        <version>3.0.9.GA-SNAPSHOT</version>
+        <version>3.0.9.GA.SEE1-SNAPSHOT</version>
     </parent>
 
     <dependencies>

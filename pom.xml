@@ -26,11 +26,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jboss.xnio</groupId>
+    <groupId>com.seeburger.xnio</groupId>
     <artifactId>xnio-all</artifactId>
     <packaging>pom</packaging>
     <name>XNIO Parent POM</name>
-    <version>3.0.9.GA-SNAPSHOT</version>
+    <version>3.0.9.GA.SEE1-SNAPSHOT</version>
     <description>The aggregator POM of the XNIO project</description>
 
     <modules>
@@ -51,12 +51,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jboss.xnio</groupId>
+                <groupId>com.seeburger.xnio</groupId>
                 <artifactId>xnio-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.jboss.xnio</groupId>
+                <groupId>com.seeburger.xnio</groupId>
                 <artifactId>xnio-nio</artifactId>
                 <version>${project.version}</version>
             </dependency>
