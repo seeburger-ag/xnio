@@ -141,13 +141,13 @@ public class BufferedChannelInputStream extends InputStream {
         } else {
             if (! buffer.hasRemaining()) {
                 long now = System.currentTimeMillis();
-                final long deadline = timeout - now;
+                final long deadline = now + timeout;
                 do {
                     buffer.clear();
                     if (deadline <= now) {
                         throw new ReadTimeoutException("Read timed out");
                     }
-                    final int res = Channels.readBlocking(channel, buffer, deadline - now, TimeUnit.MILLISECONDS);
+                    final int res = Channels.readBlocking(channel, buffer, deadline - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
                     if (res == -1) {
                         return -1;
                     }
@@ -167,19 +167,22 @@ public class BufferedChannelInputStream extends InputStream {
      * @return the number of bytes read, or -1 if the end of the stream has been reached
      * @throws IOException if an I/O error occurs
      */
-    public int read(final byte[] b, int off, int len) throws IOException {
-        if (len < 1) {
+    public int read(final byte[] b, int offset, int length) throws IOException {
+        if (length < 1) {
             return 0;
         }
+        int off = offset;
+        int len = length;
         int total = 0;
         final ByteBuffer buffer = this.buffer;
         if (buffer.hasRemaining()) {
             final int cnt = min(buffer.remaining(), len);
-            buffer.get(b, off, len);
+            buffer.get(b, off, cnt);
             total += cnt;
             off += cnt;
             len -= cnt;
         }
+
         if (closed) return -1;
         final StreamSourceChannel channel = this.channel;
         final long timeout = this.timeout;
@@ -191,27 +194,37 @@ public class BufferedChannelInputStream extends InputStream {
                     if (res == -1) {
                         return total == 0 ? -1 : total;
                     }
+
                     total += res;
+                    off += res;
+                    len -= res;
+
                     if (res == 0) {
                         break;
                     }
                 }
             } else {
+                final long deadline = System.currentTimeMillis() + timeout;
                 while (len > 0) {
                     final ByteBuffer dst = ByteBuffer.wrap(b, off, len);
                     int res;
                     if (total > 0) {
                         res = channel.read(dst);
                     } else {
-                        res = Channels.readBlocking(channel, dst, timeout, TimeUnit.MILLISECONDS);
+                        res = Channels.readBlocking(channel, dst, deadline - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
                         if (res == 0) {
                             throw new ReadTimeoutException("Read timed out");
                         }
                     }
+
                     if (res == -1) {
                         return total == 0 ? -1 : total;
                     }
+
                     total += res;
+                    off += res;
+                    len -= res;
+
                     if (res == 0) {
                         break;
                     }
