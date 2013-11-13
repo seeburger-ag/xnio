@@ -49,9 +49,13 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
     private static final Logger log = Logger.getLogger("org.xnio.nio.tcp.channel");
 
     private final SocketChannel socketChannel;
-    private final Socket socket;
-    private final InetSocketAddress localAddress;
-    private final InetSocketAddress peerAddress;
+    //private final Socket socket;
+
+    private final InetSocketAddress initialLocalAddress;
+    private final InetSocketAddress initialPeerAddress;
+
+    private SocketAddress localAddress = null;
+    private SocketAddress peerAddress = null;
 
     private volatile int closeBits = 0;
 
@@ -70,11 +74,17 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
     NioTcpChannel(final NioXnioWorker worker, final SocketChannel socketChannel, final InetSocketAddress localAddress, final InetSocketAddress peerAddress) throws ClosedChannelException {
         super(worker);
         this.socketChannel = socketChannel;
-        this.localAddress = localAddress;
-        this.peerAddress = peerAddress;
-        socket = socketChannel.socket();
+        this.initialLocalAddress = localAddress;
+        this.initialPeerAddress = peerAddress;
         start();
     }
+
+
+    private Socket socket()
+    {
+        return socketChannel.socket();
+    }
+
 
     void configureFrom(final OptionMap optionMap) throws IOException {
         for (Option<?> option : optionMap) {
@@ -172,7 +182,7 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
         if ((old & 0x02) == 0) {
             try {
                 log.tracef("Shutting down reads on %s", this);
-                socket.shutdownInput();
+                socket().shutdownInput();
             } catch (IOException ignored) {
             } finally {
                 cancelReadKey();
@@ -192,7 +202,7 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
         if ((old & 0x01) == 0) {
             try {
                 log.tracef("Shutting down writes on %s", this);
-                socket.shutdownOutput();
+                socket().shutdownOutput();
             } catch (IOException ignored) {
             } finally {
                 cancelWriteKey();
@@ -208,19 +218,39 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
     }
 
     public SocketAddress getPeerAddress() {
-        return peerAddress;
+        final Socket socket = socket();
+        if( peerAddress == null && socket != null && socket.isConnected() )
+        {
+            peerAddress = socket.getRemoteSocketAddress();
+        }
+        if( peerAddress != null )
+        {
+            return peerAddress;
+        }
+        return initialPeerAddress;
     }
 
     public <A extends SocketAddress> A getPeerAddress(final Class<A> type) {
-        return type == InetSocketAddress.class ? type.cast(peerAddress) : null;
+        SocketAddress addr = getPeerAddress();
+        return type == addr.getClass() ? type.cast(addr) : null;
     }
 
     public SocketAddress getLocalAddress() {
-        return localAddress;
+        final Socket socket = socket();
+        if( localAddress == null && socket != null && socket.isBound() )
+        {
+            localAddress = socket.getLocalSocketAddress();
+        }
+        if( localAddress != null )
+        {
+            return localAddress;
+        }
+        return initialLocalAddress;
     }
 
     public <A extends SocketAddress> A getLocalAddress(final Class<A> type) {
-        return type == InetSocketAddress.class ? type.cast(localAddress) : null;
+        SocketAddress addr = getLocalAddress();
+        return type == addr.getClass() ? type.cast(addr) : null;
     }
 
     public boolean supportsOption(final Option<?> option) {
@@ -228,6 +258,13 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
     }
 
     public <T> T getOption(final Option<T> option) throws UnsupportedOptionException, IOException {
+
+        final Socket socket = socket();
+        if( socket == null )
+        {
+            return super.getOption(option);
+        }
+
         if (option == Options.CLOSE_ABORT) {
             return option.cast(Boolean.valueOf(socket.getSoLinger() != -1));
         } else if (option == Options.KEEP_ALIVE) {
@@ -249,6 +286,13 @@ final class NioTcpChannel extends AbstractNioStreamChannel<NioTcpChannel> implem
 
     public <T> T setOption(final Option<T> option, final T value) throws IllegalArgumentException, IOException {
         final Object old;
+
+        final Socket socket = socket();
+        if( socket == null )
+        {
+            return super.setOption(option, value);
+        }
+
         if (option == Options.CLOSE_ABORT) {
             old = Boolean.valueOf(socket.getSoLinger() != 0);
             socket.setSoLinger(((Boolean) value).booleanValue(), 0);
