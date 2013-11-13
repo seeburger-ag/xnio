@@ -327,7 +327,7 @@ final class NioXnioWorker extends XnioWorker {
                                 // if futureResult is canceled, close channel
                                 IoUtils.safeClose(channel);
                             } else {
-                                tcpChannel.configureFrom(optionMap);
+                                //tcpChannel.configureFrom(optionMap);
                                 //noinspection unchecked
                                 ChannelListeners.invokeChannelListener(tcpChannel, openListener);
                             }
