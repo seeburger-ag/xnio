@@ -51,7 +51,18 @@
     <scm>
         <url>http://github.com/seeburger-ag/xnio</url>
         <connection>scm:git:git@github.com:seeburger-ag/xnio.git</connection>
+        <developerConnection>scm:git:git@github.com:seeburger-ag/xnio.git</developerConnection>
     </scm>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.3.2</version>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencyManagement>
         <dependencies>
