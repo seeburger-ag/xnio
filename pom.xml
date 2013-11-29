@@ -20,9 +20,7 @@
   ~ 02110-1301 USA, or see the FSF site: http://www.fsf.org.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,7 +28,7 @@
     <artifactId>xnio-all</artifactId>
     <packaging>pom</packaging>
     <name>XNIO Parent POM</name>
-    <version>3.0.9.GA.SEE1-SNAPSHOT</version>
+    <version>3.0.9.GA.SEE1</version>
     <description>The aggregator POM of the XNIO project</description>
 
     <modules>
@@ -52,7 +50,8 @@
         <url>http://github.com/seeburger-ag/xnio</url>
         <connection>scm:git:git@github.com:seeburger-ag/xnio.git</connection>
         <developerConnection>scm:git:git@github.com:seeburger-ag/xnio.git</developerConnection>
-    </scm>
+      <tag>xnio-all-3.0.9.GA.SEE1</tag>
+  </scm>
 
     <build>
         <plugins>
